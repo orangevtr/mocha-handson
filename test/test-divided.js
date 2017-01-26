@@ -7,5 +7,8 @@ describe('divided', function() {
         it('should return 2 when the value is 4', function() {
             divided.calculate(4).should.equal(2);
         });
+        it('should return 1 when the value is 3', function() {
+            divided.calculate(3).should.equal(1);
+        });
     });
 });
