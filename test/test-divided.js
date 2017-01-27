@@ -29,13 +29,30 @@ describe('divided', function() {
     });
 
     describe('#read', function() {
-        it('should print "result: 4" when the value is 8 that given from the stdin', function(done) {
-            var ev = new EventEmitter();
-            var _console_log = console.log; // push
-            this.sinon.stub(console, 'log'); // console.logをstub化
+        var _console_log;
+        var _process_openStdin;
+        var ev;
+        before(function() { // setup
+            _console_log = console.log;
+            _process_openStdin = process.openStdin;
+        });
 
+        after(function() { // teardown
+            console.log = _console_log;
+            process.openStdin = _process_openStdin;
+        });
+
+        beforeEach(function() { // setup by examples
+            ev = new EventEmitter();
+            this.sinon.stub(console, 'log'); // console.logをstub化
             process.openStdin = this.sinon.stub().returns(ev); // process.openStdinという関数をevを返すstubにする
-            // この形式は使いこなせても良さそう
+        });
+
+        afterEach(function() { // teardown by examples
+            // do nothing
+        });
+
+        it('should print "result: 4" when the value is 8 that given from the stdin', function(done) {
             divided.read(); // 中でopenStdinが呼ばれる
             ev.emit('data', '8'); // dataイベントで8を送信
 
@@ -47,11 +64,6 @@ describe('divided', function() {
         });
 
         it('should print "Type of numeric is expected." when the value is not a numeric', function(done) {
-            var ev = new EventEmitter();
-            var _console_log = console.log; // push
-            this.sinon.stub(console, 'log'); // console.logをstub化
-
-            process.openStdin = this.sinon.stub().returns(ev); // process.openStdinという関数をevを返すstubにする
             divided.read();
             ev.emit('data', 'abc'); // 文字列を入れる
 
