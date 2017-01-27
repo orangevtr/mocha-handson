@@ -1,6 +1,8 @@
 var chai = require('chai')
     , should = chai.should();
 var divided = require('../lib/divided');
+var EventEmitter = require('events').EventEmitter;
+require('mocha-sinon');
 
 describe('divided', function() {
     describe('#calculate', function() {
@@ -23,6 +25,25 @@ describe('divided', function() {
             // expect(function() {divided.calculate(null)}).to.throw(Error, 'Type of numeric is expected.');
             // expect(function() {divided.calculate("abc")}).to.throw(Error, / numeric /);
             // expect(function() {divided.calculate([])}).to.throw(Error, /^Type of numeric /);
+        });
+    });
+
+    describe('#read', function() {
+        it('should print "result: 4" when the value is 8 that given from the stdin', function(done) {
+            var ev = new EventEmitter();
+            var _console_log = console.log; // push
+            this.sinon.stub(console, 'log'); // console.logをstub化
+
+            process.openStdin = this.sinon.stub().returns(ev); // process.openStdinという関数をevを返すstubにする
+            // この形式は使いこなせても良さそう
+            divided.read(); // 中でopenStdinが呼ばれる
+            ev.emit('data', '8'); // dataイベントで8を送信
+
+            console.log.calledOnce.should.be.true; // 呼ばれたことをtest
+            console.log.calledWith('result: 4').should.be.true; // 呼ばれて、'result: 4'になってることをtest
+
+            console.log = _console_log; // pop function
+            done();
         });
     });
 });
