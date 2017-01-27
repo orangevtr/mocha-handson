@@ -45,5 +45,21 @@ describe('divided', function() {
             console.log = _console_log; // pop function
             done();
         });
+
+        it('should print "Type of numeric is expected." when the value is not a numeric', function(done) {
+            var ev = new EventEmitter();
+            var _console_log = console.log; // push
+            this.sinon.stub(console, 'log'); // console.logをstub化
+
+            process.openStdin = this.sinon.stub().returns(ev); // process.openStdinという関数をevを返すstubにする
+            divided.read();
+            ev.emit('data', 'abc'); // 文字列を入れる
+
+            console.log.calledOnce.should.be.true;
+            console.log.calledWithMatch('Type of numeric is expected.').should.be.true;
+
+            console.log = _console_log; // pop function
+            done();
+        });
     });
 });
